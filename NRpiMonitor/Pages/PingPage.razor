@@ -1,0 +1,45 @@
+@page "/Ping"
+@using NRpiMonitor.Services
+@inject PingService PingService
+
+<h3>Ping</h3>
+<div class="row">
+    <div class="col-12">
+        @if (_result is null)
+        {
+            <p>
+                Результатов пингов еще нет
+            </p>
+        }
+        else
+        {
+            @foreach (var result in _result)
+            {
+                <div class="row">
+                    <div class="col-6">
+                        @result.Host : @result.SuccessCount.ToString() / @result.TotalCount.ToString() @result.AvgRtt.ToString("F") (@result.MinRtt.ToString("F") - @result.MaxRtt.ToString("F"))                         
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+<div class="row">
+    <div class="col-6">
+        <button @onclick="async () => await RunPing()">Run ping</button>
+    </div>
+</div>
+
+@code {
+    private List<PingCheckResult>? _result;
+
+    private async Task RunPing()
+    {
+        _result = null;
+        var res = new List<PingCheckResult>();
+        res.Add(await PingService.PingHost("192.168.88.1", 30));
+        res.Add(await PingService.PingHost("1.1.1.1", 30));
+        res.Add(await PingService.PingHost("8.8.8.8", 30));
+        _result = res;
+    }
+}

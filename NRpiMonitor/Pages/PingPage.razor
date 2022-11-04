@@ -4,7 +4,7 @@
 
 <h3>Ping</h3>
 <div class="row">
-    <div class="col-12">
+    <div class="col-md-12">
         @if (_result is null)
         {
             <p>
@@ -13,20 +13,29 @@
         }
         else
         {
+            <div class="row">
             @foreach (var result in _result)
             {
-                <div class="row">
-                    <div class="col-6">
-                        @result.Host : @result.SuccessCount.ToString() / @result.TotalCount.ToString() @result.AvgRtt.ToString("F") (@result.MinRtt.ToString("F") - @result.MaxRtt.ToString("F"))                         
-                    </div>
+                <div class="col-md">
+                    <RadzenCard Style="margin: 3px">
+                        <RadzenText TextStyle="TextStyle.Overline">Host</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">@result.Host</RadzenText>
+                        
+                        <RadzenText TextStyle="TextStyle.Overline">Success / Total</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">@result.SuccessCount.ToString() / @result.TotalCount.ToString()</RadzenText>
+                        
+                        <RadzenText TextStyle="TextStyle.Overline">Min, Avg, Max (ms)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1"> @result.MinRtt.ToString("F") / @result.AvgRtt.ToString("F") / @result.MaxRtt.ToString("F")</RadzenText>
+                    </RadzenCard>
                 </div>
             }
+            </div>
         }
     </div>
 </div>
 <div class="row">
     <div class="col-6">
-        <button @onclick="async () => await RunPing()">Run ping</button>
+        <RadzenButton Text="Run ping" ButtonStyle="ButtonStyle.Primary" Click="async () => await RunPing()"/>
     </div>
 </div>
 

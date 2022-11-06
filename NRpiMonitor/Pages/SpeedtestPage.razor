@@ -10,7 +10,7 @@
             <RadzenLineSeries TItem="SpeedResultDisplay" Data="Up" CategoryProperty="Timestamp" ValueProperty="Bandwidth" Smooth="true" Title="Upload"/> 
             <RadzenLineSeries TItem="SpeedResultDisplay" Data="Down" CategoryProperty="Timestamp" ValueProperty="Bandwidth" Smooth="true" Title="Download"/>
             <RadzenLegend Position="LegendPosition.Bottom"/>
-            <RadzenCategoryAxis>
+            <RadzenCategoryAxis Formatter="@DateTimeFormatter">
                 <RadzenGridLines Visible="true"/>
             </RadzenCategoryAxis>
             <RadzenValueAxis>
@@ -44,4 +44,15 @@
         Down = Data.Select(x => new SpeedResultDisplay(x.Timestamp, x.Download)).ToList();
     }
 
+    private string DateTimeFormatter(object value)
+    {
+        if (value is DateTime timestamp)
+        {
+            return timestamp.ToString("HH:mm");
+        }
+        else
+        {
+            return value?.ToString() ?? string.Empty;
+        }
+    }
 }

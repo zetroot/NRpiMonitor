@@ -6,3 +6,6 @@ riderModule.iml
 auxbin/
 deploy.sh
 .idea/
+*.tar
+app.db
+app.db*

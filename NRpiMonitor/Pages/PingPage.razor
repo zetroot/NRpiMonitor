@@ -4,51 +4,58 @@
 
 <h3>Ping</h3>
 <div class="row">
+    <div class="col">
+        <RadzenText Text="Host" TextStyle="TextStyle.Overline"/>
+        <RadzenDropDown TValue="string" Data="@(Data?.Select(x => x.Host).Distinct())" Change="OnHostChanged"></RadzenDropDown>
+    </div>
+</div>
+<div class="row">
     <div class="col-md-12">
-        @if (_result is null)
-        {
-            <p>
-                Результатов пингов еще нет
-            </p>
-        }
-        else
-        {
-            <div class="row">
-            @foreach (var result in _result)
-            {
-                <div class="col-md">
-                    <RadzenCard Style="margin: 3px">
-                        <RadzenText TextStyle="TextStyle.Overline">Host</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Body1">@result.Host</RadzenText>
-                        
-                        <RadzenText TextStyle="TextStyle.Overline">Success / Total</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Body1">@result.SuccessCount.ToString() / @result.TotalCount.ToString()</RadzenText>
-                        
-                        <RadzenText TextStyle="TextStyle.Overline">Min, Avg, Max (ms)</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Body1"> @result.MinRtt.ToString("F") / @result.AvgRtt.ToString("F") / @result.MaxRtt.ToString("F")</RadzenText>
-                    </RadzenCard>
-                </div>
-            }
-            </div>
-        }
+        <RadzenChart>
+            <RadzenLineSeries TItem="DisplayRes" Data="min" CategoryProperty="Timestamp" ValueProperty="Rtt" Smooth="true" Title="Min" LineType="LineType.Dotted"/> 
+            <RadzenLineSeries TItem="DisplayRes" Data="avg" CategoryProperty="Timestamp" ValueProperty="Rtt" Smooth="true" Title="Avg"/> 
+            <RadzenLineSeries TItem="DisplayRes" Data="max" CategoryProperty="Timestamp" ValueProperty="Rtt" Smooth="true" Title="Max" LineType="LineType.Dotted"/>
+            <RadzenLegend Position="LegendPosition.Bottom"/>
+        </RadzenChart>
     </div>
 </div>
 <div class="row">
     <div class="col-6">
-        <RadzenButton Text="Run ping" ButtonStyle="ButtonStyle.Primary" Click="async () => await RunPing()"/>
+        <RadzenButton Text="Load" ButtonStyle="ButtonStyle.Primary" Click="async () => await LoadData()"/>
     </div>
 </div>
 
 @code {
-    private List<PingCheckResult>? _result;
+    private string? seletedHost;
+    private List<PingCheckResult>? Data;
+    private List<DisplayRes>? min;
+    private List<DisplayRes>? avg;
+    private List<DisplayRes>? max;
 
-    private async Task RunPing()
+    private record DisplayRes(DateTime Timestamp, double Rtt);
+
+    protected override async Task OnInitializedAsync()
     {
-        _result = null;
-        var res = new List<PingCheckResult>();
-        res.Add(await PingService.PingHost("192.168.88.1", 30));
-        res.Add(await PingService.PingHost("1.1.1.1", 30));
-        res.Add(await PingService.PingHost("8.8.8.8", 30));
-        _result = res;
+        Data = await PingService.GetResults(DateTime.Now.AddDays(-1));
+        await base.OnInitializedAsync();
     }
+
+    private async Task LoadData()
+    {
+        Data = await PingService.GetResults(DateTime.Now.AddDays(-1));
+        OnHostChanged(seletedHost);
+    }
+
+    private void OnHostChanged(object value)
+    {
+        if (value is string host)
+        {
+            seletedHost = host;
+            var hostsData = Data?.Where(x => x.Host == host).ToList();
+            min = hostsData?.Select(x => new DisplayRes(x.Timestamp, x.MinRtt)).ToList();
+            avg = hostsData?.Select(x => new DisplayRes(x.Timestamp, x.AvgRtt)).ToList();
+            max = hostsData?.Select(x => new DisplayRes(x.Timestamp, x.MaxRtt)).ToList();
+        }
+    }
+
 }

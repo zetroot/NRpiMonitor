@@ -1,0 +1,43 @@
+@using NRpiMonitor.Services
+@inject PingService PingService
+
+<div class="container-fluid">
+    @if (_pingList is null)
+    {
+        <p>Загружаем пинги</p>
+    }
+    else
+    {
+        <div class="row">
+            @foreach (var result in _pingList)
+            {
+                <div class="col-md">
+                    <RadzenCard Style="margin: 3px">
+                        <RadzenText TextStyle="TextStyle.Overline">Host</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">@result.Host</RadzenText>
+                        
+                        <RadzenText TextStyle="TextStyle.Overline">Timestamp</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">@result.Timestamp</RadzenText>
+                                                
+                        <RadzenText TextStyle="TextStyle.Overline">Success / Total</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">@result.SuccessCount.ToString() / @result.TotalCount.ToString()</RadzenText>
+                        
+                        <RadzenText TextStyle="TextStyle.Overline">Min, Avg, Max (ms)</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1"> @result.MinRtt.ToString("F") / @result.AvgRtt.ToString("F") / @result.MaxRtt.ToString("F")</RadzenText>
+                    </RadzenCard>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<PingCheckResult>? _pingList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _pingList = await PingService.GetLastState();
+        await base.OnInitializedAsync();
+    }
+
+}

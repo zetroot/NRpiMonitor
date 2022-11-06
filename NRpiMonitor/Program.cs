@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using NRpiMonitor.Database;
+using NRpiMonitor.Database.Repositories;
 using NRpiMonitor.Services;
 using Radzen;
 
@@ -11,6 +14,11 @@ builder.Services.AddScoped<DialogService>();
 builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<ContextMenuService>();
+
+builder.Services.AddDbContextFactory<DataContext>(opt => opt.UseSqlite($"Data Source=app.db"));
+builder.Services.AddTransient<PingResultsRepository>();
+
+builder.Services.AddHostedService<PingBackground>();
 
 var app = builder.Build();
 

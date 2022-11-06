@@ -1,7 +1,19 @@
-﻿@page "/"
+﻿@using NRpiMonitor.Pages.Components
+@page "/"
 
 <PageTitle>NRpiMonitor</PageTitle>
 
 <h1>N Raspberry Pi Monitory</h1>
 
-<p>А здесь будет дашборд с текущим состоянием</p>
+<div class="container-fluid">
+    <div class="row">
+        <RadzenCard Style="margin: 3px">
+            <div class="row">
+                <RadzenLabel Text="Последний пинг"/>
+            </div>
+            <div class="row">
+                <PingLastState/>    
+            </div>
+        </RadzenCard>
+    </div>
+</div>

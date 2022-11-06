@@ -15,7 +15,8 @@ builder.Services.AddScoped<NotificationService>();
 builder.Services.AddScoped<TooltipService>();
 builder.Services.AddScoped<ContextMenuService>();
 
-builder.Services.AddDbContextFactory<DataContext>(opt => opt.UseSqlite($"Data Source=app.db"));
+var connstr = builder.Configuration.GetConnectionString("default");
+builder.Services.AddDbContextFactory<DataContext>(opt => opt.UseSqlite(connstr));
 builder.Services.AddTransient<PingResultsRepository>();
 
 builder.Services.AddHostedService<PingBackground>();

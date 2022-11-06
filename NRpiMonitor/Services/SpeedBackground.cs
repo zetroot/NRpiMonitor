@@ -21,7 +21,7 @@ public class SpeedBackground : BackgroundService
             {
                 
             }
-            await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
         }
     }
 }

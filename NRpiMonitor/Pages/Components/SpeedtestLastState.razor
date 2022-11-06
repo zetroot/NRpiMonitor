@@ -1,0 +1,38 @@
+@using NRpiMonitor.Services
+@using NRpiMonitor.Services.Models.Speedtest
+@inject SpeedtestService Service
+
+<div class="container-fluid">
+    @if (_result is null)
+    {
+        <p>Загружаем результаты скорости</p>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-md-2">
+                <RadzenCard Style="margin: 3px">
+                    <RadzenText TextStyle="TextStyle.Overline">Timestamp</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">@_result.Timestamp</RadzenText>
+                                            
+                    <RadzenText TextStyle="TextStyle.Overline">Upload</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">@_result.Upload.ToString("F2") MB/s</RadzenText>
+                    
+                    <RadzenText TextStyle="TextStyle.Overline">Download</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">@_result.Download.ToString("F2") MB/s</RadzenText>
+                </RadzenCard>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private SpeedtestResult _result;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _result = await Service.GetLastState();
+        await base.OnInitializedAsync();
+    }
+
+}

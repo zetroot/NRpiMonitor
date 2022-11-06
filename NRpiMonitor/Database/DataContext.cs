@@ -11,6 +11,7 @@ public class DataContext : DbContext
     }
     
     public DbSet<PingResultDal> Pings => Set<PingResultDal>();
+    public DbSet<SpeedtestResultDal> SpeedTests => Set<SpeedtestResultDal>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

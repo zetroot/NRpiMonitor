@@ -53,6 +53,28 @@ namespace NRpiMonitor.Migrations
 
                     b.ToTable("PingResults", (string)null);
                 });
+
+            modelBuilder.Entity("NRpiMonitor.Database.Model.SpeedtestResultDal", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("DownloadBandwidth")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("UploadBandwidth")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Timestamp");
+
+                    b.ToTable("SpeedtestResults", (string)null);
+                });
 #pragma warning restore 612, 618
         }
     }

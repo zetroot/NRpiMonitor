@@ -1,0 +1,41 @@
+@page "/Speedtest"
+@using NRpiMonitor.Services
+@using NRpiMonitor.Services.Models.Speedtest
+@inject SpeedtestService SpeedService; 
+<h3>Speedtest</h3>
+
+<div class="row">
+    <div class="col-md-12">
+        <RadzenChart>
+            <RadzenLineSeries TItem="SpeedResultDisplay" Data="Up" CategoryProperty="Timestamp" ValueProperty="Bandwidth" Smooth="true" Title="Upload"/> 
+            <RadzenLineSeries TItem="SpeedResultDisplay" Data="Down" CategoryProperty="Timestamp" ValueProperty="Bandwidth" Smooth="true" Title="Download"/>
+            <RadzenLegend Position="LegendPosition.Bottom"/>
+        </RadzenChart>
+    </div>
+</div>
+<div class="row">
+    <div class="col-6">
+        <RadzenButton Text="Load" ButtonStyle="ButtonStyle.Primary" Click="async () => await ReloadData()"/>
+    </div>
+</div>
+
+@code {
+    private List<SpeedtestResult>? Data;
+    private List<SpeedResultDisplay>? Up;
+    private List<SpeedResultDisplay>? Down;
+
+    private record SpeedResultDisplay(DateTime Timestamp, double Bandwidth);
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        await ReloadData();
+    }
+
+    private async Task ReloadData()
+    {
+        Data = await SpeedService.GetResults(DateTime.Now.AddDays(-1));
+        Up = Data.Select(x => new SpeedResultDisplay(x.Timestamp, x.Upload)).ToList();
+        Down = Data.Select(x => new SpeedResultDisplay(x.Timestamp, x.Download)).ToList();
+    }
+
+}

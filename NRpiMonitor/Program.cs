@@ -1,8 +1,13 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using NRpiMonitor.Database;
 using NRpiMonitor.Database.Repositories;
 using NRpiMonitor.Services;
 using Radzen;
+
+var cultureInfo = new CultureInfo("ru-RU");
+CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
 
 var builder = WebApplication.CreateBuilder(args);
 

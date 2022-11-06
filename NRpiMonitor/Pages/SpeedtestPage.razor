@@ -10,6 +10,12 @@
             <RadzenLineSeries TItem="SpeedResultDisplay" Data="Up" CategoryProperty="Timestamp" ValueProperty="Bandwidth" Smooth="true" Title="Upload"/> 
             <RadzenLineSeries TItem="SpeedResultDisplay" Data="Down" CategoryProperty="Timestamp" ValueProperty="Bandwidth" Smooth="true" Title="Download"/>
             <RadzenLegend Position="LegendPosition.Bottom"/>
+            <RadzenCategoryAxis>
+                <RadzenGridLines Visible="true"/>
+            </RadzenCategoryAxis>
+            <RadzenValueAxis>
+                <RadzenGridLines Visible="true"/>
+            </RadzenValueAxis>
         </RadzenChart>
     </div>
 </div>

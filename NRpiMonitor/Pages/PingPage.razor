@@ -7,22 +7,18 @@
     <div class="col">
         <RadzenText Text="Host" TextStyle="TextStyle.Overline"/>
         <RadzenDropDown TValue="string" Data="@(Data?.Select(x => x.Host).Distinct())" Change="OnHostChanged"></RadzenDropDown>
+        <RadzenButton Text="Load" ButtonStyle="ButtonStyle.Primary" Click="async () => await LoadData()"/>
     </div>
 </div>
-<div class="row">
+<div class="row" style="height: calc(60vh)">
     <div class="col-md-12">
-        <RadzenChart>
+        <RadzenChart Style="height: 100%">
             <RadzenLineSeries TItem="DisplayRes" Data="min" CategoryProperty="Timestamp" ValueProperty="Rtt" Smooth="true" Title="Min" LineType="LineType.Dotted"/> 
             <RadzenLineSeries TItem="DisplayRes" Data="avg" CategoryProperty="Timestamp" ValueProperty="Rtt" Smooth="true" Title="Avg"/> 
             <RadzenLineSeries TItem="DisplayRes" Data="max" CategoryProperty="Timestamp" ValueProperty="Rtt" Smooth="true" Title="Max" LineType="LineType.Dotted"/>
             <RadzenLegend Position="LegendPosition.Bottom"/>
             <RadzenCategoryAxis Formatter="@DateTimeFormatter"/>
         </RadzenChart>
-    </div>
-</div>
-<div class="row">
-    <div class="col-6">
-        <RadzenButton Text="Load" ButtonStyle="ButtonStyle.Primary" Click="async () => await LoadData()"/>
     </div>
 </div>
 

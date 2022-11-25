@@ -4,9 +4,9 @@
 @inject SpeedtestService SpeedService; 
 <h3>Speedtest</h3>
 
-<div class="row">
+<div class="row" style="height: calc(75vh)">
     <div class="col-md-12">
-        <RadzenChart>
+        <RadzenChart Style="height: 100%">
             <RadzenLineSeries TItem="SpeedResultDisplay" Data="Up" CategoryProperty="Timestamp" ValueProperty="Bandwidth" Smooth="true" Title="Upload"/> 
             <RadzenLineSeries TItem="SpeedResultDisplay" Data="Down" CategoryProperty="Timestamp" ValueProperty="Bandwidth" Smooth="true" Title="Download"/>
             <RadzenLegend Position="LegendPosition.Bottom"/>
@@ -17,11 +17,6 @@
                 <RadzenGridLines Visible="true"/>
             </RadzenValueAxis>
         </RadzenChart>
-    </div>
-</div>
-<div class="row">
-    <div class="col-6">
-        <RadzenButton Text="Load" ButtonStyle="ButtonStyle.Primary" Click="async () => await ReloadData()"/>
     </div>
 </div>
 

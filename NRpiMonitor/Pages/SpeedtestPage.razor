@@ -19,16 +19,16 @@
         </RadzenChart>
     </div>
 </div>
-<div>
-    <div>
+<div class="row">
+    <div class="col-md">
         <RadzenText Text="Not before" TextStyle="TextStyle.Overline"/>
         <RadzenDatePicker @bind-Value="@notBefore"/>
     </div>
-    <div>
-        <RadzenText Text="Not before" TextStyle="TextStyle.Overline"/>
-        <RadzenDatePicker @bind-Value="@notBefore"/>
+    <div class="col-md">
+        <RadzenText Text="Not after" TextStyle="TextStyle.Overline"/>
+        <RadzenDatePicker @bind-Value="@notAfter"/>
     </div>
-    <div>
+    <div class="col-md">
         <RadzenButton Click="() => ReloadData()">Load</RadzenButton>
     </div>
 </div>

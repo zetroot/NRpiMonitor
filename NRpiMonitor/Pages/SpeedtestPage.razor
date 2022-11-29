@@ -19,12 +19,28 @@
         </RadzenChart>
     </div>
 </div>
+<div>
+    <div>
+        <RadzenText Text="Not before" TextStyle="TextStyle.Overline"/>
+        <RadzenDatePicker @bind-Value="@notBefore"/>
+    </div>
+    <div>
+        <RadzenText Text="Not before" TextStyle="TextStyle.Overline"/>
+        <RadzenDatePicker @bind-Value="@notBefore"/>
+    </div>
+    <div>
+        <RadzenButton Click="() => ReloadData()">Load</RadzenButton>
+    </div>
+</div>
 
 @code {
     private List<SpeedtestResult>? Data;
     private List<SpeedResultDisplay>? Up;
     private List<SpeedResultDisplay>? Down;
 
+    private DateTime notBefore = DateTime.Now.AddDays(-1);
+    private DateTime notAfter = DateTime.Now;
+    
     private record SpeedResultDisplay(DateTime Timestamp, double Bandwidth);
     protected override async Task OnInitializedAsync()
     {
@@ -34,7 +50,7 @@
 
     private async Task ReloadData()
     {
-        Data = await SpeedService.GetResults(DateTime.Now.AddDays(-1));
+        Data = await SpeedService.GetResults(notBefore, notAfter);
         Up = Data.Select(x => new SpeedResultDisplay(x.Timestamp, x.Upload)).ToList();
         Down = Data.Select(x => new SpeedResultDisplay(x.Timestamp, x.Download)).ToList();
     }

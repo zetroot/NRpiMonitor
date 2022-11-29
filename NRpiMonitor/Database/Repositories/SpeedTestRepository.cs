@@ -27,10 +27,12 @@ public class SpeedTestRepository
         return new() { Timestamp = result.Timestamp, Download = result.DownloadBandwidth/1024.0/1024.0, Upload = result.UploadBandwidth/1024.0/1024.0 };
     }
     
-    public async Task<List<SpeedtestResult>> GetAllResults(DateTime notbefore)
+    public async Task<List<SpeedtestResult>> GetAllResults(DateTime notBefore, DateTime notAfter)
     {
         await using var context = await _contextFactory.CreateDbContextAsync();
-        var results = await context.SpeedTests.Where(x => x.Timestamp >= notbefore).ToListAsync();
+        var results = await context.SpeedTests
+            .Where(x => x.Timestamp >= notBefore && x.Timestamp <= notAfter)
+            .ToListAsync();
         return results.Select(x => new SpeedtestResult(){Timestamp = x.Timestamp, Download = x.DownloadBandwidth/1024.0/1024.0, Upload = x.UploadBandwidth/1024.0/1024.0}).ToList();
     }
 }

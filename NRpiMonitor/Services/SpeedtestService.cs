@@ -32,5 +32,6 @@ public class SpeedtestService
     }
     
     public Task<SpeedtestResult> GetLastState() => _repo.GetLastState();
-    public Task<List<SpeedtestResult>> GetResults(DateTime notBefore) => _repo.GetAllResults(notBefore);
+    public Task<List<SpeedtestResult>> GetResults(DateTime notBefore, DateTime notAfter) =>
+        _repo.GetAllResults(notBefore, notAfter);
 }

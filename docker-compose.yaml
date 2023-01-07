@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  nrpimonitor:
+    image: ghcr.io/zetroot/nrpimonitor:master
+    restart: always
+    ports:
+      - 80:80
+    container_name: nrpimon
+    environment:
+      - ConnectionStrings__default=Data Source=/opt/data/app.db
+    volumes:
+      - ./nrpimondb/:/opt/data/

@@ -10,4 +10,4 @@ services:
     environment:
       - ConnectionStrings__default=Data Source=/opt/data/app.db
     volumes:
-      - .nrpimondb/:/opt/data/
+      - ./nrpimondb/:/opt/data/

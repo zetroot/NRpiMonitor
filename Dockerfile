@@ -3,7 +3,7 @@ COPY ["./auxbin/speedtest", "/bin/"]
 WORKDIR /app
 EXPOSE 80
 
-FROM mcr.microsoft.com/dotnet/sdk:7.0-alpine-arm64v8 AS build
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY ["NRpiMonitor/NRpiMonitor.csproj", "NRpiMonitor/"]
 RUN dotnet restore -r linux-arm64 "NRpiMonitor/NRpiMonitor.csproj"

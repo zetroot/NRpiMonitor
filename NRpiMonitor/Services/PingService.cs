@@ -12,13 +12,14 @@ public class PingService
         _repo = repo;
     }
 
-    public async Task<PingCheckResult> PingHost(string host, int num, DateTime timestamp)
+    public async Task<PingCheckResult> PingHost(string host, int num, DateTime timestamp, CancellationToken cancellationToken = default)
     {
         using var ping = new Ping();
         var success = 0;
         var rtts = new List<long>(num);
         for (int i = 0; i < num; ++i)
         {
+            cancellationToken.ThrowIfCancellationRequested();
             var result = await ping.SendPingAsync(host);
             if (result.Status == IPStatus.Success)
             {

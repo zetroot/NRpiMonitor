@@ -1,12 +1,19 @@
+using Microsoft.Extensions.Options;
+using NRpiMonitor.Services.Models;
+
 namespace NRpiMonitor.Services;
 
 public class PingBackground : BackgroundService
 {
     private readonly PingService _service;
+    private readonly List<string> _targetHosts;
+    private readonly ILogger<PingBackground> _logger;
 
-    public PingBackground(PingService service)
+    public PingBackground(PingService service, IOptions<PingTargets> opts, ILogger<PingBackground> logger)
     {
+        _targetHosts = opts.Value.Hosts;
         _service = service;
+        _logger = logger;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -16,11 +23,16 @@ public class PingBackground : BackgroundService
             try
             {
                 var datetime = DateTime.Now;
-                await _service.PingHost("192.168.88.1", 30, datetime);
-                await _service.PingHost("1.1.1.1", 30, datetime);
-                await _service.PingHost("8.8.8.8", 30, datetime);
+                foreach (var targetHost in _targetHosts)
+                {
+                    stoppingToken.ThrowIfCancellationRequested();
+                    await _service.PingHost(targetHost, 30, datetime, stoppingToken);
+                }
             }
-            catch{}
+            catch(Exception e)
+            {
+                _logger.LogError(e, "Something failed when pinging");
+            }
 
             await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
         }

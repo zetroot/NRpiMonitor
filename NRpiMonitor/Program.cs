@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using NRpiMonitor.Database;
 using NRpiMonitor.Database.Repositories;
 using NRpiMonitor.Services;
+using NRpiMonitor.Services.Models;
 using Radzen;
 
 var cultureInfo = new CultureInfo("ru-RU");
@@ -28,6 +29,7 @@ builder.Services.AddTransient<PingResultsRepository>();
 builder.Services.AddTransient<SpeedTestRepository>();
 
 builder.Services.AddHostedService<PingBackground>();
+builder.Services.Configure<PingTargets>(builder.Configuration.GetSection(nameof(PingTargets)));
 builder.Services.AddHostedService<SpeedBackground>();
 
 var app = builder.Build();

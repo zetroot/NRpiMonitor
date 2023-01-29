@@ -6,10 +6,6 @@ using NRpiMonitor.Services;
 using NRpiMonitor.Services.Models;
 using Radzen;
 
-var cultureInfo = new CultureInfo("ru-RU");
-CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
-CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

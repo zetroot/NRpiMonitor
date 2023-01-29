@@ -1,4 +1,4 @@
-﻿FROM --platform=linux/arm64 mcr.microsoft.com/dotnet/aspnet:7.0-alpine-arm64v8 AS base
+﻿FROM --platform=linux/arm64 mcr.microsoft.com/dotnet/aspnet:7.0-jammy-arm64v8 AS base
 COPY ["./auxbin/speedtest", "/bin/"]
 WORKDIR /app
 EXPOSE 80

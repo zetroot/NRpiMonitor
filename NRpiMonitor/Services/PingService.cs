@@ -6,10 +6,12 @@ namespace NRpiMonitor.Services;
 
 public class PingService
 {
+    private const string Min = nameof(Min);
+    private const string Avg = nameof(Avg);
+    private const string Max = nameof(Max);
+    
     private static readonly Gauge PingSuccess = Metrics.CreateGauge("ping_success", "Ping success rate", "host");
-    private static readonly Gauge PingMin = Metrics.CreateGauge("ping_min", "Ping min time", "host");
-    private static readonly Gauge PingAvg = Metrics.CreateGauge("ping_avg", "Ping avg time", "host");
-    private static readonly Gauge PingMax = Metrics.CreateGauge("ping_max", "Ping max time", "host");
+    private static readonly Gauge RoundTripTime = Metrics.CreateGauge("round_trip_time", "Roundtrip time per kind per host", "host", "kind");
     private readonly PingResultsRepository _repo;
 
     public PingService(PingResultsRepository repo)
@@ -48,9 +50,9 @@ public class PingService
     private static void ExposeResult(PingCheckResult result)
     {
         PingSuccess.WithLabels(result.Host).Set((double)result.SuccessCount/result.TotalCount);
-        PingMin.WithLabels(result.Host).Set(result.MinRtt);
-        PingAvg.WithLabels(result.Host).Set(result.AvgRtt);
-        PingMax.WithLabels(result.Host).Set(result.MaxRtt);
+        RoundTripTime.WithLabels(result.Host, Min).Set(result.MinRtt);
+        RoundTripTime.WithLabels(result.Host, Avg).Set(result.AvgRtt);
+        RoundTripTime.WithLabels(result.Host, Max).Set(result.MaxRtt);
     }
 
     public Task<List<PingCheckResult>> GetLastState() => _repo.GetLastState();

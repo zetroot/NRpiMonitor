@@ -31,7 +31,7 @@ public class PingService
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
-                var result = await ping.SendPingAsync(host);
+                var result = ping.Send(host);
                 if (result.Status == IPStatus.Success)
                 {
                     rtts.Add(result.RoundtripTime);

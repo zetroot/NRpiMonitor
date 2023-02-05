@@ -4,7 +4,7 @@ using Prometheus;
 
 namespace NRpiMonitor.Services;
 
-public class PingService
+public class PingService : IDisposable
 {
     private const string Min = nameof(Min);
     private const string Avg = nameof(Avg);
@@ -15,15 +15,16 @@ public class PingService
     
     private readonly PingResultsRepository _repo;
     private readonly ILogger<PingService> _logger;
+    private readonly Ping _pinger;
     public PingService(PingResultsRepository repo, ILogger<PingService> logger)
     {
         _repo = repo;
         _logger = logger;
+        _pinger = new Ping();
     }
 
     public async Task<PingCheckResult> PingHost(string host, int num, DateTime timestamp, CancellationToken cancellationToken = default)
     {
-        using var ping = new Ping();
         var success = 0;
         var rtts = new List<long>(num);
         for (int i = 0; i < num; ++i)
@@ -31,7 +32,7 @@ public class PingService
             cancellationToken.ThrowIfCancellationRequested();
             try
             {
-                var result = ping.Send(host);
+                var result = _pinger.Send(host);
                 if (result.Status == IPStatus.Success)
                 {
                     rtts.Add(result.RoundtripTime);
@@ -66,4 +67,9 @@ public class PingService
 
     public Task<List<PingCheckResult>> GetLastState() => _repo.GetLastState();
     public Task<List<PingCheckResult>> GetResults(DateTime notBefore) => _repo.GetAllResults(notBefore);
+
+    public void Dispose()
+    {
+        _pinger.Dispose();
+    }
 }

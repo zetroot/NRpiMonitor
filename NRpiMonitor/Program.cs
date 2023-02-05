@@ -4,6 +4,7 @@ using NRpiMonitor.Database;
 using NRpiMonitor.Database.Repositories;
 using NRpiMonitor.Services;
 using NRpiMonitor.Services.Models;
+using Prometheus;
 using Radzen;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +39,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseRouting();
+app.MapMetrics();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 

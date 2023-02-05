@@ -12,11 +12,13 @@ public class PingService
     
     private static readonly Gauge PingSuccess = Metrics.CreateGauge("ping_success", "Ping success rate", "host");
     private static readonly Gauge RoundTripTime = Metrics.CreateGauge("round_trip_time", "Roundtrip time per kind per host", "host", "kind");
+    
     private readonly PingResultsRepository _repo;
-
-    public PingService(PingResultsRepository repo)
+    private readonly ILogger<PingService> _logger;
+    public PingService(PingResultsRepository repo, ILogger<PingService> logger)
     {
         _repo = repo;
+        _logger = logger;
     }
 
     public async Task<PingCheckResult> PingHost(string host, int num, DateTime timestamp, CancellationToken cancellationToken = default)
@@ -27,11 +29,18 @@ public class PingService
         for (int i = 0; i < num; ++i)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var result = await ping.SendPingAsync(host);
-            if (result.Status == IPStatus.Success)
+            try
             {
-                rtts.Add(result.RoundtripTime);
-                success++;
+                var result = await ping.SendPingAsync(host);
+                if (result.Status == IPStatus.Success)
+                {
+                    rtts.Add(result.RoundtripTime);
+                    success++;
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Failed ping attempt");
             }
         }
         

@@ -39,8 +39,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseRouting();
-app.MapMetrics();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+app.MapMetrics();
 
+Metrics.SuppressDefaultMetrics();
 app.Run();

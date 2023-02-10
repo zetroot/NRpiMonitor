@@ -45,9 +45,14 @@ public class BandwidthService
 
     private void ExposeResult(OutputModelRoot? result)
     {
-        Speed.WithLabels(Download).Set(result?.Summary?.Received?.Bandwidth ?? 0);
-        Speed.WithLabels(Upload).Set(result?.Summary?.Sent?.Bandwidth ?? 0);
-        Size.WithLabels(Download).Set(result?.Summary?.Received?.Size ?? 0);
-        Size.WithLabels(Upload).Set(result?.Summary?.Sent?.Size ?? 0);
+        if(result?.Summary?.Received?.Bandwidth is {} download)
+            Speed.WithLabels(Download).Set(download);
+        if(result?.Summary?.Sent?.Bandwidth is {} upload)
+            Speed.WithLabels(Upload).Set(upload);
+        
+        if(result?.Summary?.Received?.Size is {} received)
+            Size.WithLabels(Download).Set(received);
+        if(result?.Summary?.Sent?.Size is {} sent) 
+            Size.WithLabels(Upload).Set(sent);
     }
 }

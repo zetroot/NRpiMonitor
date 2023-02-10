@@ -7,6 +7,14 @@ on:
     tags: [ 'v*.*.*' ]
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Tag image with this label'
+        required: true
+        default: 'dev'
+        
+          
 
 env:
   # Use docker.io for Docker Hub if empty

@@ -6,8 +6,18 @@ using NRpiMonitor.Services.iperf;
 using NRpiMonitor.Services.Models;
 using Prometheus;
 using Radzen;
+using Serilog;
+using Serilog.Formatting.Compact;
+using Serilog.Formatting.Json;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext()
+    .WriteTo.Console(new RenderedCompactJsonFormatter())
+);
 
 // Add services to the container.
 builder.Services.AddRazorPages();

@@ -3,12 +3,12 @@ using NRpiMonitor.Database;
 using NRpiMonitor.Database.Repositories;
 using NRpiMonitor.Services;
 using NRpiMonitor.Services.iperf;
+using NRpiMonitor.Services.iperf.Models;
 using NRpiMonitor.Services.Models;
 using Prometheus;
 using Radzen;
 using Serilog;
 using Serilog.Formatting.Compact;
-using Serilog.Formatting.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,8 +38,10 @@ builder.Services
     .AddTransient<PingService>()
     .AddHostedService<PingBackground>()
     .AddTransient<SpeedtestService>()
+    .Configure<IperfSettings>(builder.Configuration.GetSection(nameof(IperfSettings)))
     .AddTransient<BandwidthService>()
-    .AddHostedService<SpeedBackground>();
+    .AddHostedService<SpeedBackground>()
+    .AddHostedService<IperfBackground>();
 
 var app = builder.Build();
 

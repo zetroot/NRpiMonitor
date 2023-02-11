@@ -1,7 +1,8 @@
 using System.Diagnostics;
+using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Options;
 using NRpiMonitor.Services.iperf.Models;
-using NRpiMonitor.Services.Models.Speedtest;
 using Prometheus;
 
 namespace NRpiMonitor.Services.iperf;
@@ -10,27 +11,53 @@ public class BandwidthService
 {
     private const string Download = nameof(Download);
     private const string Upload = nameof(Upload);
-    private static readonly Gauge Speed = Metrics.CreateGauge("iperf3_bandwidth", "iperf3 results", "direction"); 
-    private static readonly Gauge Size = Metrics.CreateGauge("iperf3_size", "iperf3 transferred", "direction");
+    private static readonly Gauge Speed = Metrics.CreateGauge("iperf3_bandwidth", "iperf3 results", "direction", "host"); 
+    private static readonly Gauge Size = Metrics.CreateGauge("iperf3_size", "iperf3 transferred", "direction", "host");
 
     private readonly ILogger<BandwidthService> _logger;
+    private readonly ICollection<IperfHost> _hosts;
 
-    public BandwidthService(ILogger<BandwidthService> logger)
+    public BandwidthService(IOptions<IperfSettings> opts, ILogger<BandwidthService> logger)
     {
         _logger = logger;
+        _hosts = opts.Value.Hosts;
     }
-
+    
     public async Task RunIperf3()
     {
-        var proc = new Process()
+        _logger.LogInformation("Stating network iperf3 check");
+        foreach (var iperfHost in _hosts)
         {
-            StartInfo = new ProcessStartInfo()
+            try
             {
-                FileName = "iperf3",
-                Arguments = "-J -c lg.vie.alwyzon.net",
-                RedirectStandardOutput = true
+                var result = await TestHost(iperfHost.Host, iperfHost.Username, iperfHost.Password, iperfHost.RsaKeyfile);
+                ExposeResult(result, iperfHost.Host);
             }
+            catch (Exception e)
+            {
+                _logger.LogWarning(e, "Host {Host} failed. But show will go on", iperfHost.Host);
+            }
+        }
+    }
+
+    private async Task<OutputModelRoot> TestHost(string host, string? user, string? password, string? keyfile)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(host, nameof(host));
+        var args = new StringBuilder("-J -c ").Append(host);
+        if (!string.IsNullOrWhiteSpace(user))
+            args.Append(" --username ").Append(user);
+        if(!string.IsNullOrWhiteSpace(keyfile))
+            args.Append(" --rsa-public-key-path ").Append(keyfile);
+
+        var start = new ProcessStartInfo()
+        {
+            FileName = "iperf3",
+            Arguments = args.ToString(),
+            RedirectStandardOutput = true
         };
+        if(!string.IsNullOrWhiteSpace(password))
+            start.EnvironmentVariables.Add("IPERF3_PASSWORD", password);
+        var proc = new Process { StartInfo = start };
         proc.Start();
         var output = await proc.StandardOutput.ReadToEndAsync();
 
@@ -38,21 +65,23 @@ public class BandwidthService
         _logger.LogDebug("iperf result: {@Result}", result);
         if (result is null)
         {
-            _logger.LogDebug("iperf raw output: {RawOutput}", output);
+            _logger.LogError("iperf output cant be deserialized. Raw output: {RawOutput}", output);
+            throw new InvalidOperationException("Iperf run failed");
         }
-        ExposeResult(result);
+
+        return result;
     }
 
-    private void ExposeResult(OutputModelRoot? result)
+    private void ExposeResult(OutputModelRoot? result, string host)
     {
         if(result?.Summary?.Received?.Bandwidth is {} download)
-            Speed.WithLabels(Download).Set(download);
+            Speed.WithLabels(Download, host).Set(download);
         if(result?.Summary?.Sent?.Bandwidth is {} upload)
-            Speed.WithLabels(Upload).Set(upload);
+            Speed.WithLabels(Upload, host).Set(upload);
         
         if(result?.Summary?.Received?.Size is {} received)
-            Size.WithLabels(Download).Set(received);
+            Size.WithLabels(Download, host).Set(received);
         if(result?.Summary?.Sent?.Size is {} sent) 
-            Size.WithLabels(Upload).Set(sent);
+            Size.WithLabels(Upload, host).Set(sent);
     }
 }

@@ -2,12 +2,12 @@ namespace NRpiMonitor.Services;
 
 public class SpeedBackground : BackgroundService
 {
-    private readonly SpeedtestService _service;
+    private readonly SpeedtestService _speedtestService;
     private readonly ILogger<SpeedBackground> _logger;
 
-    public SpeedBackground(SpeedtestService service, ILogger<SpeedBackground> logger)
+    public SpeedBackground(SpeedtestService speedtestService, ILogger<SpeedBackground> logger)
     {
-        _service = service;
+        _speedtestService = speedtestService;
         _logger = logger;
     }
 
@@ -17,12 +17,13 @@ public class SpeedBackground : BackgroundService
         {
             try
             {
-                await _service.RunSpeedtest();
+                await _speedtestService.RunSpeedtest();
             }
             catch(Exception e)
             {
                 _logger.LogError(e,"Failed to do speedtest");
             }
+            
             await Task.Delay(TimeSpan.FromMinutes(15), stoppingToken);
         }
     }

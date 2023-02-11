@@ -9,3 +9,5 @@ deploy.sh
 *.tar
 app.db
 app.db*
+keys/
+appsettings.Local.json

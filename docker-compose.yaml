@@ -5,6 +5,9 @@ services:
     image: ghcr.io/zetroot/nrpimonitor:v0.2.5
     platform: linux/arm64
     restart: always
+    depends_on:
+      seq:
+        condition: service_started
     ports:
       - 80:80
     container_name: nrpimon
@@ -42,6 +45,18 @@ services:
     volumes:
       - grafana-data:/var/lib/grafana
 
+  seq:
+    image: datalust/seq:latest
+    restart: unless-stopped
+    volumes:
+      - seq-data:/data
+    ports:
+      - "80:80"
+      - "5341:5341"
+    environment:
+      - ACCEPT_EULA=Y
+        
 volumes:
   grafana-data:
   prometheus-data:
+  seq-data:

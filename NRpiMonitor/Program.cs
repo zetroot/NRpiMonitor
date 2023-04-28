@@ -19,6 +19,8 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
     .WriteTo.Console(new RenderedCompactJsonFormatter())
 );
 
+Serilog.Debugging.SelfLog.Enable(msg => Log.Logger.Error(msg));
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();

@@ -44,7 +44,7 @@ public class PingService : IDisposable
                 _logger.LogError(e, "Failed ping attempt");
             }
         }
-        
+        _logger.LogDebug("Finished pingg");   
         var pingRes = new PingCheckResult(timestamp,
             host,
             num,
@@ -53,7 +53,9 @@ public class PingService : IDisposable
             rtts.Min(x => (double)x),
             rtts.Max(x => (double)x));
         ExposeResult(pingRes);
+        _logger.LogDebug("Ping metrics exposed");
         await _repo.AddResult(pingRes);
+        _logger.LogInformation("Ping data saved into DB");
         return pingRes;
     }
 

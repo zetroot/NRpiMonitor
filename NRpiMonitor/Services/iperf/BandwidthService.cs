@@ -25,17 +25,21 @@ public class BandwidthService
     
     public async Task RunIperf3()
     {
-        _logger.LogInformation("Stating network iperf3 check");
         foreach (var iperfHost in _hosts)
         {
-            try
+            using (_logger.BeginScope(new Dictionary<string, object> { { "Host", iperfHost.Host } }))
             {
-                var result = await TestHost(iperfHost.Host, iperfHost.Username, iperfHost.Password, iperfHost.RsaKeyfile);
-                ExposeResult(result, iperfHost.Host);
-            }
-            catch (Exception e)
-            {
-                _logger.LogWarning(e, "Host {Host} failed. But show will go on", iperfHost.Host);
+                _logger.LogDebug("Starting test for next host");
+                try
+                {
+                    var result = await TestHost(iperfHost.Host, iperfHost.Username, iperfHost.Password, iperfHost.RsaKeyfile);
+                    ExposeResult(result, iperfHost.Host);
+                    _logger.LogInformation("Test for host finished, metrics exposed");
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, "Monitoring failed for host, will retry later");
+                }
             }
         }
     }

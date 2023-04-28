@@ -12,11 +12,13 @@ public class SpeedtestService
     private const string Upload = nameof(Upload);
     
     private readonly SpeedTestRepository _repo;
+    private readonly ILogger<SpeedtestService> _logger;
     private static readonly Gauge Speed = Metrics.CreateGauge("bandwidth", "Speedtest results", "direction");
 
-    public SpeedtestService(SpeedTestRepository repo)
+    public SpeedtestService(SpeedTestRepository repo, ILogger<SpeedtestService> logger)
     {
         _repo = repo;
+        _logger = logger;
     }
 
     public async Task RunSpeedtest()
@@ -33,10 +35,26 @@ public class SpeedtestService
         proc.Start();
         var output = await proc.StandardOutput.ReadToEndAsync();
         var result = JsonSerializer.Deserialize<SpeedtestResultJson>(output);
-        ExposeResult(result);
-        await _repo.AddResult(result);
+        _logger.LogDebug("Speedtest result was {@ResultModel}", result);
+        if (result is {Download: not null, Upload: not null })
+        {
+            ExposeResult(result);
+            await _repo.AddResult(result);
+        }
+        else
+        {
+            _logger.LogWarning("Could not get valid speedtest result. Metrics will be cleared");
+            ClearMetrics();
+        }
+
     }
 
+    private static void ClearMetrics()
+    {
+        Speed.RemoveLabelled(Download);
+        Speed.RemoveLabelled(Upload);
+    }
+    
     private static void ExposeResult(SpeedtestResultJson result)
     {
         Speed.WithLabels(Download).Set(result.Download.Bandwidth);

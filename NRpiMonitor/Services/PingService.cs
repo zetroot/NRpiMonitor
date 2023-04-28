@@ -23,7 +23,7 @@ public class PingService : IDisposable
         _pinger = new Ping();
     }
 
-    public async Task<PingCheckResult> PingHost(string host, int num, DateTime timestamp, CancellationToken cancellationToken = default)
+    public async Task<PingCheckResult?> PingHost(string host, int num, DateTime timestamp, CancellationToken cancellationToken = default)
     {
         var success = 0;
         var rtts = new List<long>(num);
@@ -44,19 +44,35 @@ public class PingService : IDisposable
                 _logger.LogError(e, "Failed ping attempt");
             }
         }
-        _logger.LogDebug("Finished pingg");   
-        var pingRes = new PingCheckResult(timestamp,
-            host,
-            num,
-            success,
-            rtts.Sum(x => (double)x) / success,
-            rtts.Min(x => (double)x),
-            rtts.Max(x => (double)x));
-        ExposeResult(pingRes);
-        _logger.LogDebug("Ping metrics exposed");
-        await _repo.AddResult(pingRes);
-        _logger.LogInformation("Ping data saved into DB");
-        return pingRes;
+        _logger.LogDebug("Finished ping, results = {ResultCount}", rtts.Count);
+
+        if (rtts.Any())
+        {
+            var pingRes = new PingCheckResult(timestamp,
+                host,
+                num,
+                success,
+                rtts.Sum(x => (double)x) / success,
+                rtts.Min(x => (double)x),
+                rtts.Max(x => (double)x));
+            ExposeResult(pingRes);
+            _logger.LogDebug("Ping metrics exposed");
+            await _repo.AddResult(pingRes);
+            _logger.LogInformation("Ping data saved into DB");
+            return pingRes;
+        }
+
+        _logger.LogWarning("Ping result was totally unsuccessful. Removing metrics for host");
+        ClearMetrics(host);
+        return null;
+    }
+
+    private static void ClearMetrics(string host)
+    {
+        PingSuccess.RemoveLabelled(host);
+        RoundTripTime.RemoveLabelled(host, Min);
+        RoundTripTime.RemoveLabelled(host, Avg);
+        RoundTripTime.RemoveLabelled(host, Max);
     }
 
     private static void ExposeResult(PingCheckResult result)

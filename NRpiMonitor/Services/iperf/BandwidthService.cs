@@ -38,10 +38,19 @@ public class BandwidthService
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e, "Monitoring failed for host, will retry later");
+                    _logger.LogWarning(e, "Monitoring failed for host, will retry later. Metrics will be removed");
+                    ClearMetrics(iperfHost.Host);
                 }
             }
         }
+    }
+
+    private static void ClearMetrics(string host)
+    {
+        Speed.RemoveLabelled(Download, host);
+        Speed.RemoveLabelled(Upload, host);
+        Size.RemoveLabelled(Download, host);
+        Size.RemoveLabelled(Upload, host);
     }
 
     private async Task<OutputModelRoot> TestHost(string host, string? user, string? password, string? keyfile)
@@ -76,16 +85,25 @@ public class BandwidthService
         return result;
     }
 
-    private void ExposeResult(OutputModelRoot? result, string host)
+    private static void ExposeResult(OutputModelRoot? result, string host)
     {
         if(result?.Summary?.Received?.Bandwidth is {} download)
             Speed.WithLabels(Download, host).Set(download);
+        else
+            Speed.RemoveLabelled(Download, host);
+        
         if(result?.Summary?.Sent?.Bandwidth is {} upload)
             Speed.WithLabels(Upload, host).Set(upload);
-        
-        if(result?.Summary?.Received?.Size is {} received)
+        else
+            Speed.RemoveLabelled(Upload, host);
+
+        if (result?.Summary?.Received?.Size is { } received)
             Size.WithLabels(Download, host).Set(received);
-        if(result?.Summary?.Sent?.Size is {} sent) 
+        else
+            Size.RemoveLabelled(Download, host);
+        if (result?.Summary?.Sent?.Size is { } sent)
             Size.WithLabels(Upload, host).Set(sent);
+        else
+            Size.RemoveLabelled(Upload, host);
     }
 }

@@ -19,11 +19,14 @@ public class IperfBackground : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        _logger.LogDebug("Started iperf3 bandwidth monitoring service");
         while (!stoppingToken.IsCancellationRequested)
         {
+            _logger.LogDebug("Running next turn of bw monitoring");
             try
             {
                 await _bandwidthService.RunIperf3();
+                _logger.LogDebug("Finished iperf3 bw monitoring turn");
             }
             catch(Exception e)
             {

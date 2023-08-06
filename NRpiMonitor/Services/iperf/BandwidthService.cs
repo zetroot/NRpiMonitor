@@ -71,18 +71,26 @@ public class BandwidthService
         if(!string.IsNullOrWhiteSpace(password))
             start.EnvironmentVariables.Add("IPERF3_PASSWORD", password);
         var proc = new Process { StartInfo = start };
-        proc.Start();
-        var output = await proc.StandardOutput.ReadToEndAsync();
-
-        var result = JsonSerializer.Deserialize<OutputModelRoot>(output);
-        _logger.LogDebug("iperf result: {@Result}", result);
-        if (result is null)
+        var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
+        try
         {
-            _logger.LogError("iperf output cant be deserialized. Raw output: {RawOutput}", output);
-            throw new InvalidOperationException("Iperf run failed");
-        }
+            proc.Start();
+            var output = await proc.StandardOutput.ReadToEndAsync(cts.Token);
 
-        return result;
+            var result = JsonSerializer.Deserialize<OutputModelRoot>(output);
+            _logger.LogDebug("iperf result: {@Result}", result);
+            if (result is null)
+            {
+                _logger.LogError("iperf output cant be deserialized. Raw output: {RawOutput}", output);
+                throw new InvalidOperationException("Iperf run failed");
+            }
+            return result;
+
+        }
+        finally
+        {
+            proc.Kill();
+        }
     }
 
     private static void ExposeResult(OutputModelRoot? result, string host)
